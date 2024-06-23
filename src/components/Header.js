@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Header.css';
+import axios from 'axios';
 
 function Header() {
   const [visibleSubMenu, setVisibleSubMenu] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   const handleMouseEnter = (item) => {
     setVisibleSubMenu(item);
@@ -12,6 +14,19 @@ function Header() {
   const handleMouseLeave = () => {
     setVisibleSubMenu(null);
   };
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/messages');
+        setMessages(response.data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    };
+
+    fetchMessages();
+  }, []);
 
   return (
       <header className="app-header">
@@ -53,6 +68,14 @@ function Header() {
               <ul className={`submenu ${visibleSubMenu === 'sensor' ? 'show' : ''}`}>
                 <li><Link to="#">Cadastrar Sensor</Link></li>
                 <li><Link to="#">Consultar Sensor</Link></li>
+              </ul>
+            </li>
+            <li>
+              <span>Mensagens Recebidas</span>
+              <ul className="messages">
+                {messages.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
               </ul>
             </li>
           </ul>
